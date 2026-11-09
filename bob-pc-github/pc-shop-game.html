@@ -15,6 +15,23 @@ dialog{width:calc(100vw - 20px);padding:18px;border-radius:18px;max-height:calc(
 }
 @media(max-width:360px){.brand{font-size:18px}.shell[data-page]{padding:8px}.pad{padding:11px}.page-nav button{font-size:12px}.bench{grid-template-columns:80px minmax(155px,1fr);gap:3px}.part .info{padding:8px}.controls{grid-template-columns:1fr}.controls .primary{grid-column:auto}.numbers strong{font-size:15px}.taskrow{font-size:11px}.taskrow button{min-width:75px}}
 @media(max-height:550px) and (orientation:landscape){dialog{width:min(720px,96vw)}.game-art{height:145px;margin:6px 0}.game-art>svg{height:140px}.game-status{min-height:30px}.modal-actions{padding:6px 0}.page-nav{position:static}}
+/* ===== FX: ทดสอบเครื่อง + ส่งมอบ ===== */
+#fx{position:fixed;left:0;top:0;pointer-events:none;z-index:30}
+#fxMute{position:fixed;left:12px;bottom:12px;z-index:31;width:42px;height:42px;padding:0;border-radius:50%;font-size:18px;background:#28373ce6;box-shadow:0 4px 16px #0006}
+#progress{box-shadow:0 0 12px #7dffb0aa}
+.bench.fx-test{box-shadow:0 0 0 2px #7dffb0,0 0 calc(16px + var(--fxs,0)*9px) #5dffa0aa,inset 0 0 40px #5dffa044;animation:fxshake .09s linear infinite}
+@keyframes fxshake{0%{transform:translate(calc(var(--fxs,0)*1px),0)}25%{transform:translate(0,calc(var(--fxs,0)*-1px))}50%{transform:translate(calc(var(--fxs,0)*-1px),0)}75%{transform:translate(0,calc(var(--fxs,0)*1px))}100%{transform:translate(calc(var(--fxs,0)*1px),0)}}
+.bench.fx-ready{animation:fxready 2.2s ease-in-out infinite}
+@keyframes fxready{0%,100%{box-shadow:0 0 0 1px #7dffb066,0 0 10px #5dffa033,inset 0 0 20px #5dffa022}50%{box-shadow:0 0 0 2px #7dffb0cc,0 0 28px #5dffa0aa,inset 0 0 40px #5dffa044}}
+#sell:not(:disabled){position:relative;overflow:hidden;animation:fxbtn 1.4s ease-in-out infinite}
+#sell:not(:disabled)::after{content:"";position:absolute;top:0;bottom:0;width:40%;left:-60%;background:linear-gradient(100deg,transparent,#ffffff77,transparent);transform:skewX(-20deg);animation:fxshine 2.2s ease-in-out infinite}
+@keyframes fxbtn{0%,100%{box-shadow:0 0 0 #c9f18a00}50%{box-shadow:0 0 22px #c9f18acc}}
+@keyframes fxshine{0%{left:-60%}55%,100%{left:130%}}
+main.fx-quake{animation:fxquake .55s ease-out}
+@keyframes fxquake{0%,100%{transform:none}10%{transform:translate(-9px,5px)}25%{transform:translate(8px,-6px)}40%{transform:translate(-6px,-3px)}55%{transform:translate(5px,5px)}70%{transform:translate(-3px,2px)}85%{transform:translate(2px,-2px)}}
+#money.fx-pop{display:inline-block;animation:fxpop .55s ease-out}
+@keyframes fxpop{40%{transform:scale(1.4);color:#ffe27a;text-shadow:0 0 14px #ffd24a}}
+@media (prefers-reduced-motion:reduce){.bench.fx-test,.bench.fx-ready,#sell:not(:disabled),#sell:not(:disabled)::after,main.fx-quake{animation:none}}
 </style><header><div><div class="brand">ชื่อบิดาท่านตัวเย็น <span>PC SHOP</span></div><div class="caption">ซื้ออะไหล่ → ประกอบ + มินิเกม → ทดสอบ → ส่งมอบ</div></div><div class="numbers"><div><small>เงินในร้าน</small><strong id="money"></strong></div><div><small>กำไรสะสม</small><strong id="profit"></strong></div><div><small>ส่งมอบแล้ว</small><strong id="sold"></strong></div></div></header><nav class="page-nav" aria-label="เมนูหลัก"><button data-page="home" aria-current="page">🏠 หน้าร้าน / รับงาน</button><button data-page="shop">🛒 ซื้ออะไหล่</button><button data-page="bench">🔧 โต๊ะประกอบ</button><button data-page="inventory">📦 คลังสินค้า</button></nav><h1 class="page-title" id="pageTitle">หน้าร้าน / รับออร์เดอร์</h1><main class="shell" data-page="home"><aside class="panel"><canvas class="avatar" width="540" height="520" aria-label="นักเรียนชายหัวโต เจ้าของร้านคอม"></canvas><div class="pad"><div id="bubble" class="bubble">สวัสดีครับ! รับงานแรก แล้วกด “ซื้อชุดแนะนำ” ได้เลย ผมช่วยตรวจสเปกให้ครับ</div><div class="steps">① รับออร์เดอร์ · ② ซื้อและติดตั้ง<br>③ ทดสอบเครื่อง · ④ ขายรับเงิน</div><h2>กระดานงาน</h2><div id="orders"></div><h3>สมุดร้าน</h3><div id="ledger" class="ledger">เริ่มกิจการด้วยเงิน 30,000 ฿</div><button id="reset" class="wide danger">เริ่มเกมใหม่</button></div></aside><section class="panel"><div class="pad"><div class="shophead"><div><h2>ตลาดอะไหล่</h2><p style="margin:0 0 12px;font-size:12px">โมเดลวาดด้วยโค้ด 11 ชนิด · 22 รุ่น</p></div><select id="filter" aria-label="กรองอะไหล่"></select></div><div id="catalog" class="catalog"></div></div></section><section class="panel work"><div class="pad"><div><h2>โต๊ะประกอบ / BUILD 01</h2><div id="jobInfo"></div><div id="bench" class="bench"></div><div class="metrics"><div class="metric" id="cost"></div><div class="metric" id="power"></div></div><button id="recommended" class="primary wide">ซื้อและติดตั้งชุดแนะนำ</button><button id="returnAll" class="wide">ถอดทั้งหมดกลับคลัง</button><p style="font-size:11px">ปุ่มแนะนำใช้ของในคลังก่อน แล้วซื้อเฉพาะชิ้นที่ขาด คุณเลือกอะไหล่เองจากตลาดได้เช่นกัน</p></div><div><h3>อุปกรณ์ที่ติดตั้ง</h3><div id="slots" class="slots"></div><div id="assemblyTasks"></div><div id="testResult" class="test">ประกอบอุปกรณ์แล้วกดทดสอบเครื่อง</div><div class="bar"><div id="progress" style="width:0%"></div></div><button id="test" class="wide">⏻ ทดสอบเปิดเครื่อง</button><button id="sell" class="primary wide" disabled>ส่งมอบและขายเครื่อง</button><div class="caption" id="saveStatus"></div></div></div></section><section class="panel" id="inventoryPage"><div class="pad"><h2>คลังสินค้าของร้าน</h2><p>อะไหล่ที่ซื้อและยังไม่ได้ติดตั้ง กดติดตั้งเพื่อใส่เครื่อง หรือขายคืนรับเงินเต็มราคา</p><div id="inventoryList" class="inventory-grid"></div><div class="inventory-footer"><button class="primary" data-go="shop">ไปซื้ออะไหล่เพิ่ม →</button> <button data-go="bench">ไปโต๊ะประกอบ →</button></div></div></section></main><footer>เกมจำลองเท่านั้น ราคา ยี่ห้อ สเปก และคะแนนเป็นข้อมูลสมมติ ไม่ใช่ร้านค้าที่รับเงินจริง • อะไหล่ที่ไม่ได้ใช้ขายคืนได้เต็มราคา • บันทึกในเบราว์เซอร์นี้อัตโนมัติหากรองรับ • ใช้งานออฟไลน์ได้</footer><dialog id="assemblyDialog" aria-labelledby="gameTitle"><div class="caption" id="gameLabel">ASSEMBLY LAB / มินิเกม</div><h2 id="gameTitle"></h2><p id="gameHelp"></p><div id="gameArt" class="game-art"></div><div id="timingTrack" class="timing-track"><div class="safe-zone"></div><div id="needle" class="needle"></div></div><div id="gameStatus" class="game-status" role="status"></div><div class="modal-actions"><button id="gameClose">พักไว้ก่อน</button><button id="gameAction" class="primary">เริ่ม</button></div></dialog><div id="notice" role="status"></div><script>
 const labels={cpu:'CPU',ram:'แรม',gpu:'การ์ดจอ',ssd:'SSD',hdd:'HDD',board:'เมนบอร์ด',psu:'พาวเวอร์ซัพพลาย',case:'เคสคอม',monitor:'จอ',mouse:'เมาส์',keyboard:'คีย์บอร์ด'};
 const catalog=[];function add(type,name,price,opts){let p={id:type+catalog.filter(p=>p.type===type).length,type,name,price,score:0,watts:0,...opts};catalog.push(p)}
@@ -32,7 +49,7 @@ function remove(type){if(testing)return;let id=state.build[type];if(!id)return;s
 function refund(id){if(testing||stock(id)<1)return;state.inventory[id]--;state.money+=byId[id].price;render();save()}
 function accept(id){if(testing)return;state.job=freshJobs().find(j=>j.id===id);invalidate();render();save();notify('รับงาน '+state.job.title+' แล้วครับ มาประกอบกัน!')}
 function recommend(){if(testing)return;if(!state.job)return notify('รับออร์เดอร์ที่กระดานงานก่อนครับ');let hi=state.job.id!=='office',wanted=required.map(k=>byId[k+(hi&& !['mouse','keyboard'].includes(k)?1:0)]);if(state.job.hdd)wanted.push(byId.hdd1);let inv={...state.inventory};for(let id of Object.values(state.build))inv[id]=(inv[id]||0)+1;let needed=wanted.filter(p=>!(inv[p.id]>0)),price=needed.reduce((n,p)=>n+p.price,0);if(price>state.money)return notify('ชุดแนะนำต้องซื้อเพิ่ม '+baht(price)+' ลองขายคืนอะไหล่ที่เหลือก่อนครับ');state.inventory=inv;state.build={};for(let p of wanted){if(!(stock(p.id)>0)){state.money-=p.price;state.inventory[p.id]=1}state.inventory[p.id]--;state.build[p.type]=p.id}invalidate();render();save();notify('ติดตั้งครบแล้ว! กดทดสอบเปิดเครื่องได้เลยครับ')}
-function startTest(){if(testing)return;let e=issues();if(e.length){$('#testResult').className='test fail';$('#testResult').textContent='ยังเปิดเครื่องไม่ได้: '+e.join(' • ');return notify(e[0])}testing=true;progress=0;tested='';render();testingTimer=setInterval(()=>{progress+=10;$('#progress').style.width=progress+'%';$('#testResult').textContent='กำลังตรวจ '+['สายไฟและอุปกรณ์','BIOS และหน่วยความจำ','โหลด CPU / GPU','ความพร้อมส่งมอบ'][Math.min(3,Math.floor(progress/26))]+'… '+progress+'%';if(progress>=100){clearInterval(testingTimer);testing=false;tested=fingerprint();render();notify('ผ่านทุกการทดสอบแล้วครับ พร้อมส่งมอบ!')}},180)}
+function startTest(){if(testing)return;let e=issues();if(e.length){$('#testResult').className='test fail';$('#testResult').textContent='ยังเปิดเครื่องไม่ได้: '+e.join(' • ');return notify(e[0])}testing=true;progress=0;tested='';render();testingTimer=setInterval(()=>{progress+=10;$('#progress').style.width=progress+'%';$('#testResult').textContent='กำลังตรวจ '+['สายไฟและอุปกรณ์','BIOS และหน่วยความจำ','โหลด CPU / GPU','ความพร้อมส่งมอบ'][Math.min(3,Math.floor(progress/26))]+'… '+progress+'%';if(progress>=100){clearInterval(testingTimer);testing=false;tested=fingerprint();render();notify('ผ่านทุกการทดสอบแล้วครับ พร้อมส่งมอบ!')}},300)}
 function sell(){if(testing||tested!==fingerprint()||issues().length)return;let cost=buildCost(),reward=state.job.reward,profit=reward-cost;state.money+=reward;state.profit+=profit;state.sold++;state.logs.unshift('ส่ง '+state.job.title+' • กำไร '+baht(profit));state.logs=state.logs.slice(0,12);state.build={};state.job=null;invalidate();render();save();notify('ขายสำเร็จ! กำไร '+baht(profit)+' รับออร์เดอร์ใหม่ได้เลยครับ');$('.work').classList.remove('done');void $('.work').offsetWidth;$('.work').classList.add('done')}
 function model(type,large=false){let art='',R=(x,y,w,h,fill,r=3)=>`<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="${r}" fill="${fill}"/>`,L=(x,y,X,Y,color='#7fa99a',width=2)=>`<path d="M${x} ${y}L${X} ${Y}" stroke="${color}" stroke-width="${width}" fill="none"/>`,C=(x,y,r,fill)=>`<circle cx="${x}" cy="${y}" r="${r}" fill="${fill}"/>`,T=(x,y,t,size=10,color='#dfeadd')=>`<text x="${x}" y="${y}" fill="${color}" font-size="${size}" font-family="Arial" text-anchor="middle">${t}</text>`;let chips=(x,y,n)=>Array.from({length:n},(_,i)=>R(x+i*19,y,14,20,'#152b29')).join('');switch(type){case 'ram':art=R(18,40,144,42,'#31866b')+R(22,80,136,6,'#dfb960',0)+chips(25,48,7)+L(25,44,151,44,'#7de2b3')+R(88,79,5,7,'#263b3e',0)+R(12,49,7,22,'#b2c7b9')+R(162,49,7,22,'#b2c7b9');break;case 'cpu':art=R(46,17,87,87,'#176f61')+R(55,25,69,70,'#acbfc1',7)+R(61,31,57,58,'#dbe4df',5)+T(90,59,'BOB',15,'#52666b')+T(90,77,'CORE',11,'#52666b');for(let i=0;i<12;i++)art+=L(48+i*7,13,48+i*7,19,'#e9c66c')+L(48+i*7,103,48+i*7,110,'#e9c66c');break;case 'gpu':art=R(14,32,150,64,'#3e5159',7)+R(22,39,128,50,'#1b272c')+R(23,94,90,6,'#d6b558')+R(161,27,6,72,'#a4b4b6');for(let x of [57,113]){art+=C(x,64,22,'#8fd2a9')+C(x,64,19,'#243c3f');for(let j=0;j<7;j++)art+=`<ellipse cx="${x}" cy="52" rx="5" ry="10" fill="#668382" transform="rotate(${j*360/7} ${x} 64)"/>`;art+=C(x,64,6,'#b2c6bd')}break;case 'ssd':art=R(17,38,146,45,'#25756f')+R(22,47,40,24,'#142a2c')+R(68,44,65,31,'#dce5d0')+T(100,58,'SWIFT',10,'#28665e')+T(100,70,'NVMe SSD',7,'#28665e')+R(155,43,9,34,'#d9b25b',0)+C(23,77,3,'#afbbad');break;case 'hdd':art=R(44,14,92,94,'#b5c0b8',7)+R(50,20,80,80,'#82979a')+C(88,59,32,'#e5e9d7')+C(88,59,23,'#bfcfc4')+C(88,59,6,'#596c72')+`<path d="M123 90L92 56L84 61Z" fill="#f4f2d8"/>`+C(123,90,6,'#465960');break;case 'board':art=R(40,8,101,104,'#286650')+R(57,24,39,39,'#a3b7a1')+R(63,30,27,27,'#c4d0b8')+R(107,17,7,62,'#202b32')+R(119,17,7,62,'#c1b05f')+R(48,79,64,7,'#c9b370')+R(48,92,64,7,'#243a32')+C(122,96,10,'#aabbb4')+R(34,21,11,48,'#a4b2ad')+R(61,65,25,10,'#16392d');for(let i=0;i<8;i++)art+=L(48,15+i*10,101,15+i*10,'#548f69',1);break;case 'psu':art=`<path d="M40 32L67 16L148 26L124 45Z" fill="#7e9290"/><path d="M124 45L148 26V89L124 105Z" fill="#2e4449"/>`+R(40,32,85,73,'#4c6263')+C(81,68,29,'#1c3037');for(let r of [9,16,23])art+=`<circle cx="81" cy="68" r="${r}" fill="none" stroke="#98aaa0" stroke-width="2"/>`;art+=L(43,101,121,37,'#98aaa0')+L(43,37,121,100,'#98aaa0')+L(139,83,169,109,'#d9b46c',4);break;case 'case':art=`<path d="M41 15L66 7L140 17L116 26Z" fill="#778b8e"/><path d="M116 26L140 17V107L116 118Z" fill="#3f535e"/>`+R(41,15,76,102,'#23353d')+R(47,24,63,83,'#354c52')+R(55,35,46,51,'#527473')+R(58,44,23,25,'#75a18e')+R(59,76,41,6,'#aac4ac')+R(50,93,57,8,'#172b31');for(let y of [41,70,98])art+=C(128,y,9,'#9addc3')+C(128,y,6,'#263c48');break;case 'monitor':art=R(14,13,151,88,'#1b2c35',7)+R(21,20,137,72,'#76a9a2')+`<path d="M21 91L77 31L110 62L140 40L158 91Z" fill="#2d656b"/><path d="M21 91L69 57L104 91Z" fill="#b5d8b3"/>`+R(81,100,17,11,'#a1b4ae')+R(62,110,56,5,'#8caaa5')+C(146,96,2,'#bef48c');break;case 'mouse':art=L(91,32,84,5,'#b6c5bb',3)+`<path d="M63 57Q62 29 91 29Q119 29 120 57V85Q117 111 90 111Q62 111 63 85Z" fill="#ced9cd"/>`+`<path d="M63 59H120M91 30V59" stroke="#729088" fill="none" stroke-width="2"/>`+R(86,38,10,17,'#344e54',4)+L(68,88,114,88,'#75b88d',3);break;case 'keyboard':art=`<path d="M24 34H157L173 91H8Z" fill="#6f8e8d"/>`+R(19,41,141,43,'#263f49');for(let row=0;row<4;row++)for(let col=0;col<13;col++)art+=R(24+col*10,45+row*9,8,6,row===3&&col>3&&col<9?'#b2d69a':'#bdcbc5',1);break}return `<svg viewBox="0 0 180 125" role="img" aria-label="${labels[type]}"><ellipse cx="90" cy="116" rx="73" ry="5" fill="#0a161b55"/>${art}</svg>`}
 function specs(p){return [p.socket?'Socket '+p.socket:'',p.ddr?'DDR'+p.ddr:'',p.gb?p.gb+' GB':'',p.capacity?p.capacity+' W':'',p.watts?p.watts+' W โหลด':'',p.score?'คะแนน +'+p.score:'',p.gpuMax?'รองรับ GPU ≤ '+p.gpuMax+' W':''].filter(Boolean).join(' · ')||'อุปกรณ์ต่อพ่วงมาตรฐาน'}
@@ -101,4 +118,217 @@ const shopTip=document.createElement('div');shopTip.className='page-tip';shopTip
 const benchTip=document.createElement('div');benchTip.className='page-tip';benchTip.innerHTML='<button data-go="shop">🛒 ซื้ออะไหล่</button><button data-go="inventory">📦 ดูของในคลัง</button><button data-go="home">🏠 เลือกออร์เดอร์</button>';$('.work>.pad').before(benchTip);renderInventory();showPage('home');
 
 const avatar=document.querySelector('.avatar'),ctx=avatar.getContext('2d');function animate(now){ctx.clearRect(0,0,540,520);ctx.save();ctx.translate(0,-20);ctx.scale(1,1);person(ctx,now/1000,'wave',1);ctx.restore();requestAnimationFrame(animate)}requestAnimationFrame(animate);
+</script>
+<script>
+(()=>{
+'use strict';
+const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
+const cv=document.createElement('canvas');cv.id='fx';cv.setAttribute('aria-hidden','true');document.body.appendChild(cv);
+const g=cv.getContext('2d');let W=0,H=0,dpr=1;
+function size(){dpr=Math.min(2,window.devicePixelRatio||1);W=innerWidth;H=innerHeight;cv.width=Math.round(W*dpr);cv.height=Math.round(H*dpr);cv.style.width=W+'px';cv.style.height=H+'px'}
+size();addEventListener('resize',size);
+const R=(a,b)=>a+Math.random()*(b-a),clamp=(v,a,b)=>Math.min(b,Math.max(a,v));
+const qty=n=>Math.max(4,Math.round(n*(reduce?.35:1)*(W<700?.65:1)));
+let parts=[],rings=[],labels=[],arcs=[],flash=0,flashColor='255,255,255',running=false,last=0,test=null,coinSnd=0;
+
+/* ---------- เสียง (WebAudio สังเคราะห์เอง ไม่มีไฟล์เสียง) ---------- */
+let ac=null,muted=false;try{muted=localStorage.getItem('bob-fx-mute')==='1'}catch{}
+function A(){if(muted)return null;try{ac=ac||new(window.AudioContext||window.webkitAudioContext)();if(ac.state==='suspended')ac.resume();return ac}catch{return null}}
+function tone(f,d=.15,type='sine',v=.1,t0=0,slide=0){const a=A();if(!a)return;const t=a.currentTime+t0,o=a.createOscillator(),n=a.createGain();o.type=type;o.frequency.setValueAtTime(f,t);if(slide)o.frequency.exponentialRampToValueAtTime(Math.max(30,f+slide),t+d);n.gain.setValueAtTime(.0001,t);n.gain.exponentialRampToValueAtTime(v,t+.012);n.gain.exponentialRampToValueAtTime(.0001,t+d);o.connect(n);n.connect(a.destination);o.start(t);o.stop(t+d+.03)}
+function noise(d=.4,f=800,v=.25,t0=0,type='lowpass'){const a=A();if(!a)return;const t=a.currentTime+t0,len=Math.max(1,Math.floor(a.sampleRate*d)),buf=a.createBuffer(1,len,a.sampleRate),ch=buf.getChannelData(0);for(let i=0;i<len;i++)ch[i]=(Math.random()*2-1)*(1-i/len);const s=a.createBufferSource(),flt=a.createBiquadFilter(),n=a.createGain();s.buffer=buf;flt.type=type;flt.frequency.value=f;n.gain.setValueAtTime(v,t);n.gain.exponentialRampToValueAtTime(.0001,t+d);s.connect(flt);flt.connect(n);n.connect(a.destination);s.start(t)}
+const snd={
+ power(){tone(70,.7,'sawtooth',.07,0,260);noise(.25,2500,.08,0,'highpass')},
+ beep(i){tone(520+i*180,.09,'square',.045)},
+ zap(){noise(.12,4200,.1,0,'highpass')},
+ pass(){[523,659,784,1047].forEach((f,i)=>tone(f,.22,'triangle',.11,i*.1));noise(.3,1800,.12,0,'highpass')},
+ boom(){noise(1,320,.5);tone(80,.7,'sine',.45,0,-45)},
+ crackle(){noise(.5,900,.22);for(let i=0;i<5;i++)noise(.06,3800,.1,.12+i*.07,'highpass')},
+ coin(){const n=performance.now();if(n-coinSnd<60)return;coinSnd=n;tone(1319,.08,'square',.04);tone(1760,.14,'square',.04,.07)}
+};
+const mb=document.createElement('button');mb.id='fxMute';mb.type='button';mb.setAttribute('aria-label','เปิดหรือปิดเสียงเอฟเฟกต์');
+const paint=()=>{mb.textContent=muted?'🔇':'🔊';mb.title=muted?'เปิดเสียงเอฟเฟกต์':'ปิดเสียงเอฟเฟกต์'};paint();
+mb.onclick=()=>{muted=!muted;try{localStorage.setItem('bob-fx-mute',muted?'1':'0')}catch{}paint();if(!muted)tone(880,.1,'triangle',.08)};
+document.body.appendChild(mb);
+
+/* ---------- ตัวสร้างอนุภาค ---------- */
+function spark(x,y,vx,vy,color,life,sz,gv=200,drag=1.2){parts.push({k:'s',x,y,vx,vy,color,life,max:life,sz,g:gv,drag,delay:0})}
+function burst(x,y,n,hue,sp=[110,330],life=[.7,1.4]){n=qty(n);for(let i=0;i<n;i++){const a=R(0,6.283),v=R(sp[0],sp[1]);spark(x,y,Math.cos(a)*v,Math.sin(a)*v,'hsl('+(hue+R(-18,18))+',100%,'+R(55,75)+'%)',R(life[0],life[1]),R(1.4,2.8),180,1.7)}}
+function ring(x,y,color,delay=0,max=.7,rad=180){rings.push({x,y,rad,life:max,max,color,delay})}
+function lightning(x1,y1,x2,y2){const pts=[[x1,y1]],n=8,dx=x2-x1,dy=y2-y1,l=Math.hypot(dx,dy)||1,nx=-dy/l,ny=dx/l;for(let i=1;i<n;i++){const o=R(-14,14);pts.push([x1+dx*i/n+nx*o,y1+dy*i/n+ny*o])}pts.push([x2,y2]);arcs.push({pts,life:.1})}
+function rocket(x0,y0,x1,y1,dur,hue,delay=0){parts.push({k:'r',x0,y0,x1,y1,x:x0,y:y0,t:0,dur,hue,delay})}
+const PAL=['#ff4d6d','#ffd23f','#4df5a8','#4db8ff','#c77dff','#ffffff','#ff9f1c'];
+function confetti(x,y,vx,vy,delay=0){const l=R(2.4,3.6);parts.push({k:'c',x,y,vx,vy,w:R(6,11),h:R(3,6),rot:R(0,6.28),vr:R(-9,9),life:l,max:l,g:520,drag:.9,color:PAL[Math.floor(R(0,PAL.length))],delay})}
+function coin(x0,y0,cx,cy,x1,y1,dur,delay,lastOne){parts.push({k:'k',x0,y0,cx,cy,x1,y1,x:x0,y:y0,t:0,dur,delay,lastOne})}
+function label(text,x,y,o={}){labels.push({text,x,y,sub:o.sub||'',size:o.size||80,c1:o.c1||'#fff',c2:o.c2||'#ccc',glow:o.glow||'#fff',rot:o.rot||0,max:o.max||2,age:0,delay:o.delay||0})}
+function kick(){if(!running){running=true;last=performance.now();requestAnimationFrame(frame)}}
+function flashNow(a,c){flash=Math.max(flash,a);flashColor=c||'255,255,255'}
+
+/* ---------- วาด ---------- */
+function drawParts(dt){
+ const cur=parts;parts=[];
+ for(const p of cur){
+  if(p.delay>0){p.delay-=dt;parts.push(p);continue}
+  if(p.k==='s'){
+   p.life-=dt;if(p.life<=0)continue;
+   const d=Math.exp(-p.drag*dt);p.vx*=d;p.vy=p.vy*d+p.g*dt;p.x+=p.vx*dt;p.y+=p.vy*dt;
+   const a=p.life/p.max;g.globalCompositeOperation='lighter';g.globalAlpha=a;g.strokeStyle=p.color;g.lineWidth=p.sz*(.5+a*.5);g.lineCap='round';
+   g.beginPath();g.moveTo(p.x-p.vx*.035,p.y-p.vy*.035);g.lineTo(p.x,p.y);g.stroke();parts.push(p);
+  }else if(p.k==='r'){
+   p.t+=dt;const u=clamp(p.t/p.dur,0,1),e=1-(1-u)*(1-u);p.x=p.x0+(p.x1-p.x0)*e;p.y=p.y0+(p.y1-p.y0)*e;
+   if(u>=1){burst(p.x1,p.y1,64,p.hue);ring(p.x1,p.y1,'hsl('+p.hue+',100%,70%)',0,.45,90);snd.crackle();continue}
+   spark(p.x,p.y,R(-25,25),R(20,70),'hsl(40,100%,70%)',.45,1.8,0,2);
+   g.globalCompositeOperation='lighter';g.globalAlpha=1;g.fillStyle='#fff';g.beginPath();g.arc(p.x,p.y,2.4,0,6.283);g.fill();parts.push(p);
+  }else if(p.k==='c'){
+   p.life-=dt;if(p.life<=0||p.y>H+30)continue;
+   p.vy=Math.min(p.vy+p.g*dt,280);p.vx*=Math.exp(-p.drag*dt);p.x+=p.vx*dt;p.y+=p.vy*dt;p.rot+=p.vr*dt;
+   g.globalCompositeOperation='source-over';g.globalAlpha=Math.min(1,p.life*1.5);g.fillStyle=p.color;
+   g.save();g.translate(p.x,p.y);g.rotate(p.rot);g.scale(1,Math.cos(p.rot*1.7));g.fillRect(-p.w/2,-p.h/2,p.w,p.h);g.restore();parts.push(p);
+  }else if(p.k==='k'){
+   p.t+=dt;const u=clamp(p.t/p.dur,0,1),e=u*u*(3-2*u),m=1-e;
+   p.x=m*m*p.x0+2*m*e*p.cx+e*e*p.x1;p.y=m*m*p.y0+2*m*e*p.cy+e*e*p.y1;
+   if(u>=1){burst(p.x1,p.y1,10,45,[40,130],[.3,.6]);snd.coin();if(p.lastOne){const el=$('#money');if(el){el.classList.remove('fx-pop');void el.offsetWidth;el.classList.add('fx-pop')}}continue}
+   if(Math.random()<.5)spark(p.x,p.y,R(-30,30),R(-30,30),'#ffd24a',.3,1.6,0,2);
+   const sx=Math.abs(Math.cos(p.t*11)),rr=11*(1-.3*u);
+   g.globalCompositeOperation='source-over';g.globalAlpha=1;g.fillStyle='#ffd24a';g.strokeStyle='#b57b10';g.lineWidth=2;
+   g.beginPath();g.ellipse(p.x,p.y,Math.max(2,rr*sx),rr,0,0,6.283);g.fill();g.stroke();
+   if(sx>.45){g.fillStyle='#8a5a00';g.font='700 12px Tahoma,Arial';g.textAlign='center';g.textBaseline='middle';g.fillText('฿',p.x,p.y+1)}
+   parts.push(p);
+  }
+ }
+ g.globalCompositeOperation='source-over';g.globalAlpha=1;
+}
+function drawRings(dt){
+ const cur=rings;rings=[];
+ for(const r of cur){
+  if(r.delay>0){r.delay-=dt;rings.push(r);continue}
+  r.life-=dt;if(r.life<=0)continue;
+  const u=1-r.life/r.max,rad=6+(r.rad-6)*(1-Math.pow(1-u,3));
+  g.globalAlpha=1-u;g.strokeStyle=r.color;g.lineWidth=5*(1-u)+1;g.beginPath();g.arc(r.x,r.y,rad,0,6.283);g.stroke();rings.push(r);
+ }
+ g.globalAlpha=1;
+}
+function drawArcs(dt){
+ const cur=arcs;arcs=[];
+ for(const a of cur){
+  a.life-=dt;if(a.life<=0)continue;
+  g.globalAlpha=Math.min(1,a.life/.06);g.strokeStyle='#d8ffff';g.lineWidth=2;g.shadowColor='#4df5ff';g.shadowBlur=14;g.lineJoin='round';
+  g.beginPath();a.pts.forEach(([x,y],i)=>i?g.lineTo(x,y):g.moveTo(x,y));g.stroke();arcs.push(a);
+ }
+ g.shadowBlur=0;g.globalAlpha=1;
+}
+function drawLabels(dt){
+ const cur=labels;labels=[];
+ for(const l of cur){
+  if(l.delay>0){l.delay-=dt;labels.push(l);continue}
+  l.age+=dt;if(l.age>=l.max)continue;
+  const a=Math.min(1,l.age/.08)*Math.min(1,(l.max-l.age)/.35),sx=l.age<.28?1+2*Math.pow(1-l.age/.28,3):1;
+  g.save();g.globalAlpha=a;g.translate(l.x,l.y);g.rotate(l.rot);g.scale(sx,sx);g.textAlign='center';g.textBaseline='middle';g.lineJoin='round';
+  g.font='900 '+l.size+'px Tahoma,Arial,sans-serif';g.shadowColor=l.glow;g.shadowBlur=28;g.lineWidth=l.size*.14;g.strokeStyle='rgba(10,18,22,.92)';g.strokeText(l.text,0,0);
+  const gr=g.createLinearGradient(0,-l.size/2,0,l.size/2);gr.addColorStop(0,l.c1);gr.addColorStop(1,l.c2);g.fillStyle=gr;g.fillText(l.text,0,0);
+  if(l.sub){g.shadowBlur=10;g.font='700 '+Math.round(l.size*.3)+'px Tahoma,Arial,sans-serif';g.lineWidth=5;g.strokeText(l.sub,0,l.size*.78);g.fillStyle='#fff';g.fillText(l.sub,0,l.size*.78)}
+  g.restore();labels.push(l);
+ }
+}
+
+/* ---------- ช่วงทดสอบเครื่อง ---------- */
+const benchEl=()=>$('#bench');
+function br(){const b=benchEl(),r=b?b.getBoundingClientRect():null;return r&&r.width>0?r:{left:W/2-160,top:H/2-140,width:320,height:280,right:W/2+160,bottom:H/2+140}}
+const STAGES=['POWER ON','POST / BIOS','STRESS TEST CPU + GPU','FINAL CHECK'],HUES=[160,200,300,45],SHAKE=[.5,1,1.8,2.6],CASE_PAL=['#4df5ff','#7dffb0','#c77dff','#ffd23f'];
+function beginTest(){
+ test={stage:-1};const b=benchEl();if(b)b.classList.add('fx-test');
+ snd.power();kick();
+}
+function stageFx(r,s){
+ const cx=r.left+Math.min(90,r.width*.3),cy=r.top+r.height/2;
+ const b=benchEl();if(b&&!reduce)b.style.setProperty('--fxs',SHAKE[s]);
+ ring(cx,cy,CASE_PAL[s],0,.7,150);burst(cx,cy,26,HUES[s],[80,260],[.4,.9]);snd.beep(s);
+ if(s>=2){lightning(cx,cy,r.left+R(0,r.width),r.top);lightning(cx,cy,r.right,r.top+R(0,r.height));snd.zap()}
+}
+function endTest(){
+ const b=benchEl();test=null;if(b){b.classList.remove('fx-test');b.style.removeProperty('--fxs')}
+ if(tested&&tested===fingerprint())passFx(br());
+}
+function drawTest(now,dt){
+ if(!testing){endTest();return}
+ const r=br(),p=progress||0,s=p<25?0:p<50?1:p<75?2:3;
+ if(s!==test.stage){test.stage=s;stageFx(r,s)}
+ const cx=r.left+Math.min(90,r.width*.3),cy=r.top+r.height/2;
+ /* เส้นสแกน */
+ g.save();g.beginPath();g.rect(r.left,r.top,r.width,r.height);g.clip();
+ const y=r.top+((now/(900-s*160))%1)*r.height,gr=g.createLinearGradient(0,y-26,0,y+26);
+ gr.addColorStop(0,'rgba(93,255,160,0)');gr.addColorStop(.5,'rgba(93,255,160,.38)');gr.addColorStop(1,'rgba(93,255,160,0)');
+ g.fillStyle=gr;g.fillRect(r.left,y-26,r.width,52);g.restore();
+ /* มุมกรอบ */
+ const L=20,al=.6+.4*Math.sin(now/120);g.globalAlpha=al;g.strokeStyle='#7dffb0';g.lineWidth=3;g.lineCap='square';
+ [[r.left,r.top,1,1],[r.right,r.top,-1,1],[r.left,r.bottom,1,-1],[r.right,r.bottom,-1,-1]].forEach(([x,y2,dx,dy])=>{g.beginPath();g.moveTo(x+dx*L,y2);g.lineTo(x,y2);g.lineTo(x,y2+dy*L);g.stroke()});
+ g.globalAlpha=1;
+ /* ป้ายสถานะ */
+ const txt='['+(s+1)+'/4] '+STAGES[s]+(Math.floor(now/250)%2?' _':'');
+ g.font='700 13px monospace';g.textAlign='center';g.textBaseline='middle';const tw=g.measureText(txt).width+22;
+ g.fillStyle='rgba(6,14,18,.75)';g.fillRect(r.left+r.width/2-tw/2,r.top+10,tw,24);g.fillStyle='#bfffd8';g.fillText(txt,r.left+r.width/2,r.top+22);
+ /* มิเตอร์ */
+ if(r.width>260){
+  const hx=r.right-160,hy=r.bottom-84;g.fillStyle='rgba(6,14,18,.78)';g.fillRect(hx,hy,148,72);
+  const vals=[['CPU',clamp(.2+p/100*.75+Math.sin(now/110)*.06,0,1)],['GPU',clamp(s<2?.12+Math.sin(now/200)*.05:.55+p/100*.4+Math.sin(now/90)*.07,0,1)],['TEMP',clamp(.18+p/100*.5,0,1)]];
+  g.font='10px monospace';g.textAlign='left';
+  vals.forEach(([n,v],i)=>{const yy=hy+14+i*21;g.fillStyle='#9fd8bd';g.fillText(n,hx+8,yy);g.fillStyle='rgba(255,255,255,.12)';g.fillRect(hx+42,yy-4,96,8);g.fillStyle='hsl('+(130-v*120)+',90%,55%)';g.fillRect(hx+42,yy-4,96*v,8)});
+ }
+ /* ประกายไฟ + ไฟฟ้าแลบ */
+ let n=(10+s*14)*dt*(reduce?.4:1);
+ while(n>0){if(Math.random()<Math.min(1,n)){const a=R(0,6.283),v=R(80,240+s*60);spark(cx,cy+R(-30,30),Math.cos(a)*v,Math.sin(a)*v-40,CASE_PAL[Math.floor(R(0,4))],R(.35,.8),R(1.4,2.4),260,1.2)}n--}
+ if(!reduce&&Math.random()<dt*(2+s*3))lightning(cx,cy+R(-30,30),r.left+R(0,r.width),r.top+R(0,r.height));
+}
+
+/* ---------- ผ่านการทดสอบ ---------- */
+function passFx(r){
+ const cx=r.left+r.width/2,cy=r.top+r.height/2;
+ flashNow(.5,'160,255,200');
+ ring(cx,cy,'#7dffb0',0,.8,Math.max(r.width,r.height)*.7);ring(cx,cy,'#4df5ff',.12,.8,Math.max(r.width,r.height)*.55);ring(cx,cy,'#ffffff',.24,.8,Math.max(r.width,r.height)*.4);
+ burst(cx,cy,70,140,[120,380],[.8,1.5]);
+ setTimeout(()=>{burst(r.left+r.width*.22,r.top,50,50);ring(r.left+r.width*.22,r.top,'#ffd23f',0,.5,90)},160);
+ setTimeout(()=>{burst(r.left+r.width*.78,r.top,50,200);ring(r.left+r.width*.78,r.top,'#4db8ff',0,.5,90)},300);
+ label('PASS ✔',cx,cy,{size:Math.min(60,W*.13),sub:'พร้อมส่งมอบ!',c1:'#eaffd0',c2:'#4fe38a',glow:'#5dffa0',rot:-.1,max:2.1});
+ snd.pass();kick();
+}
+
+/* ---------- ส่งมอบสำเร็จ ---------- */
+function celebrate(r,profit){
+ const cx=r.left+r.width/2,cy=r.top+r.height/2;
+ flashNow(.85);snd.boom();
+ const m=document.querySelector('main');if(m&&!reduce){m.classList.remove('fx-quake');void m.offsetWidth;m.classList.add('fx-quake')}
+ ring(cx,cy,'#ffd23f',0,.9,Math.max(W,H)*.45);ring(cx,cy,'#ffffff',.1,.9,Math.max(W,H)*.35);ring(cx,cy,'#ff4d6d',.2,.9,Math.max(W,H)*.25);
+ burst(cx,cy,90,45,[140,480],[.9,1.7]);
+ label('SOLD!',W/2,Math.max(90,H*.34),{size:Math.min(120,W*.2),sub:profit>0?'กำไร +'+profit.toLocaleString('th-TH')+' ฿':'ส่งมอบสำเร็จ',c1:'#fff6b0',c2:'#ffb020',glow:'#ffd23f',rot:-.06,max:2.6});
+ /* พลุ */
+ const shots=reduce?2:5;for(let i=0;i<shots;i++){const x=W*(.15+.7*((i+R(0,.6))/shots));rocket(x,H+10,x,H*R(.12,.42),R(.5,.75),Math.floor(R(0,360)),.2+i*.3)}
+ /* กระดาษสี */
+ const cn=qty(60);
+ for(let i=0;i<cn;i++){const sp=R(520,960),a=R(-1.25,-.85);confetti(0,H,Math.cos(a)*sp,Math.sin(a)*sp,R(0,.15));confetti(W,H,-Math.cos(a)*sp,Math.sin(a)*sp,R(0,.15))}
+ for(let i=0;i<qty(50);i++)confetti(R(0,W),-12,R(-40,40),R(100,240),R(.3,1.6));
+ /* เหรียญลอยไปที่ยอดเงิน */
+ const me=$('#money'),mr=me?me.getBoundingClientRect():null,tx=mr&&mr.width?mr.left+mr.width/2:W-60,ty=Math.max(24,mr&&mr.width?mr.top+mr.height/2:30),nc=reduce?5:12;
+ for(let i=0;i<nc;i++)coin(cx,cy,cx+R(-140,140),cy-R(140,260),tx,ty,R(1,1.35),.35+i*.07,i===nc-1);
+ kick();
+}
+
+function frame(now){
+ const dt=clamp((now-last)/1000||.016,0,.05);last=now;
+ g.setTransform(dpr,0,0,dpr,0,0);g.clearRect(0,0,W,H);
+ if(test)drawTest(now,dt);
+ drawRings(dt);drawArcs(dt);drawParts(dt);drawLabels(dt);
+ if(flash>.01){g.fillStyle='rgba('+flashColor+','+(flash*.55)+')';g.fillRect(0,0,W,H);flash-=dt*2}
+ if(test||parts.length||rings.length||labels.length||arcs.length||flash>.01)requestAnimationFrame(frame);
+ else{running=false;g.clearRect(0,0,W,H)}
+}
+
+/* ---------- เสียบเข้ากับเกมเดิม ---------- */
+const baseStart=startTest;
+startTest=function(){const was=testing;baseStart();if(!was&&testing)beginTest()};
+const baseSellFx=sell;
+sell=function(){const before=state.sold,r=br(),profit=state.job?state.job.reward-buildCost():0;baseSellFx();if(state.sold>before)celebrate(r,profit)};
+const baseRenderFx=render;
+render=function(){baseRenderFx();const b=benchEl();if(b)b.classList.toggle('fx-ready',!testing&&!!tested&&tested===fingerprint())};
+$('#test').onclick=startTest;$('#sell').onclick=sell;
+render();
+})();
 </script></html>
